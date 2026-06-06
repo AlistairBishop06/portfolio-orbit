@@ -63,7 +63,7 @@ function createOrbitRing(radius, color, tilt) {
   const material = new THREE.LineBasicMaterial({
     color,
     transparent: true,
-    opacity: 0.2,
+    opacity: 0.14,
     blending: THREE.AdditiveBlending,
   });
   const ring = new THREE.LineLoop(geometry, material);
@@ -79,7 +79,7 @@ function createBodyGroup(body, clickableMeshes, animatables, glowCache) {
   const isStar = body.kind === 'star';
 
   if (isStar) {
-    const light = new THREE.PointLight(color, body.brightness, 34);
+    const light = new THREE.PointLight(color, body.brightness, 56);
     group.add(light);
     animatables.push({ type: 'pulseLight', light, body });
   }
@@ -102,13 +102,13 @@ function createBodyGroup(body, clickableMeshes, animatables, glowCache) {
     glowCache.set(body.color, makeGlowTexture(body.color));
   }
 
-  const glowSize = body.size * (isStar ? 5.2 : 2.7);
+  const glowSize = body.size * (isStar ? 4.2 : 2.1);
   const glow = new THREE.Sprite(
     new THREE.SpriteMaterial({
       map: glowCache.get(body.color),
       color,
       transparent: true,
-      opacity: isStar ? 0.72 : 0.34,
+      opacity: isStar ? 0.56 : 0.28,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     }),
@@ -141,7 +141,7 @@ function createBodyGroup(body, clickableMeshes, animatables, glowCache) {
         roughness: 0.4,
       }),
     );
-    moon.position.set(body.size * 2.1, body.size * 0.35, 0);
+    moon.position.set(body.size * 2.35, body.size * 0.35, 0);
     moonPivot.add(moon);
     group.add(moonPivot);
     animatables.push({ type: 'moon', mesh: moonPivot });
@@ -170,15 +170,15 @@ export function createGalaxyScene(container, callbacks = {}) {
   container.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog('#050817', 42, 138);
+  scene.fog = new THREE.Fog('#050817', 130, 420);
 
   const camera = new THREE.PerspectiveCamera(
     54,
     container.clientWidth / container.clientHeight,
     0.1,
-    240,
+    680,
   );
-  camera.position.set(0, 18, 48);
+  camera.position.set(0, 54, 172);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -187,15 +187,15 @@ export function createGalaxyScene(container, callbacks = {}) {
   controls.panSpeed = 0.42;
   controls.rotateSpeed = 0.44;
   controls.zoomSpeed = 0.56;
-  controls.minDistance = 7;
-  controls.maxDistance = 96;
+  controls.minDistance = 12;
+  controls.maxDistance = 360;
   controls.autoRotate = true;
   controls.autoRotateSpeed = 0.13;
 
   scene.add(new THREE.AmbientLight('#90a8ff', 0.26));
   scene.add(new THREE.HemisphereLight('#bcd4ff', '#100614', 0.28));
-  scene.add(createPointField(5200, 150, ['#f7fbff', '#7ddcff', '#ffc98a', '#d39aff'], 0.45, 0.58));
-  scene.add(createPointField(950, 110, ['#6ea8ff', '#d39aff', '#5fe7bf', '#ffad6b'], 0.95, 0.24));
+  scene.add(createPointField(6500, 440, ['#f7fbff', '#7ddcff', '#ffc98a', '#d39aff'], 0.9, 0.46));
+  scene.add(createPointField(1300, 330, ['#6ea8ff', '#d39aff', '#5fe7bf', '#ffad6b'], 1.45, 0.16));
 
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2(99, 99);

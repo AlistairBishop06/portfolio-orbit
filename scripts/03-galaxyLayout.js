@@ -111,12 +111,14 @@ export function createGalaxyLayout(repos) {
     // angle, then spread only slightly around it. Unknown languages are pushed
     // into the neutral outer ring so they read as a separate fallback system.
     const clusterAngle = (clusterIndex / CLUSTER_ORDER.length) * TAU;
-    const angle = clusterAngle + (localIndex - 0.5) * 0.42;
+    const angle = clusterAngle + (localIndex - 0.5) * 1.15;
     const distance =
-      cluster === 'neutral' ? 34 + localIndex * 3 : 18 + clusterIndex * 1.7 + localIndex * 4.2;
+      cluster === 'neutral'
+        ? 122 + localIndex * 22
+        : 58 + clusterIndex * 7 + localIndex * 26;
     const position = [
       Number((Math.cos(angle) * distance).toFixed(3)),
-      Number((((localIndex % 3) - 1) * 2.2).toFixed(3)),
+      Number((((localIndex % 3) - 1) * 9).toFixed(3)),
       Number((Math.sin(angle) * distance).toFixed(3)),
     ];
 
@@ -130,15 +132,15 @@ export function createGalaxyLayout(repos) {
       color,
       systemPosition: position,
       position: [0, 0, 0],
-      size: 1.6 + starNormalised * 1.4 + Math.min(planets.length, 5) * 0.12,
+      size: 1.25 + starNormalised * 0.95 + Math.min(planets.length, 5) * 0.08,
       brightness: 2.1 + starNormalised * 1.2,
       normalisedCommits: starNormalised,
     };
 
     const planetBodies = planets.map((repo, index) => {
       const normalised = normaliseLog(getKnownCommitCount(repo), minCommits, maxCommits);
-      const orbitBand = index * 0.72;
-      const orbitRadius = 4.6 + (1 - normalised) * 6.8 + orbitBand;
+      const orbitBand = index * 4.2;
+      const orbitRadius = 11 + (1 - normalised) * 17 + orbitBand;
 
       return {
         id: `${repo.id}-planet`,
@@ -153,7 +155,7 @@ export function createGalaxyLayout(repos) {
         tilt: ((index % 5) - 2) * 0.11,
         phase: localIndex * 0.21,
         speed: 0.045 + (1 - normalised) * 0.018 + index * 0.004,
-        size: 0.55 + normalised * 1.15,
+        size: 0.42 + normalised * 0.82,
         brightness: 0.8 + normalised * 1.35,
         normalisedCommits: normalised,
       };

@@ -7,7 +7,8 @@ Repositories are fetched from the GitHub REST API, grouped by primary language, 
 ## Features
 
 - Public GitHub repository fetching with commit count enrichment
-- Graceful sample-data fallback when the GitHub API is unavailable or rate-limited
+- Live GitHub data cached in the browser to avoid burning through the public API limit
+- Graceful sample-data fallback only when GitHub and cached live data are unavailable
 - Language-grouped 3D solar systems using React Three Fiber and Three.js
 - Hover labels, click-to-open repository details, and smooth camera controls
 - Cinematic space scene with particles, stars, glow, orbit rings, and responsive UI
@@ -20,6 +21,10 @@ npm run dev
 ```
 
 Open the local URL printed by Vite.
+
+The app uses the unauthenticated public GitHub REST API in the browser. If GitHub's hourly
+rate limit is exhausted before any live data has been cached, Orbit temporarily shows
+sample data and tries GitHub again on the next load after the limit resets.
 
 ## Build
 

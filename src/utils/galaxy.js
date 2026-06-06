@@ -78,6 +78,10 @@ function languageSort(a, b) {
   return clusterDelta || a[0].localeCompare(b[0]);
 }
 
+function getKnownCommitCount(repo) {
+  return Number.isFinite(repo.commitCount) && !repo.commitCountUnavailable ? repo.commitCount : 0;
+}
+
 export function createGalaxyLayout(repos) {
   // Language grouping: every primary language becomes its own solar system.
   // The most committed repo anchors that system as the star, and all remaining
@@ -93,10 +97,12 @@ export function createGalaxyLayout(repos) {
     const localIndex = clusterCounts.get(cluster) ?? 0;
     clusterCounts.set(cluster, localIndex + 1);
 
-    const sortedRepos = [...languageRepos].sort((a, b) => b.commitCount - a.commitCount);
+    const sortedRepos = [...languageRepos].sort(
+      (a, b) => getKnownCommitCount(b) - getKnownCommitCount(a),
+    );
     const starRepo = sortedRepos[0];
     const planets = sortedRepos.slice(1);
-    const commitValues = sortedRepos.map((repo) => repo.commitCount);
+    const commitValues = sortedRepos.map(getKnownCommitCount);
     const minCommits = Math.min(...commitValues);
     const maxCommits = Math.max(...commitValues);
     const color = getLanguageColor(language);
@@ -113,7 +119,7 @@ export function createGalaxyLayout(repos) {
       Number((Math.sin(angle) * distance).toFixed(3)),
     ];
 
-    const starNormalised = normaliseLog(starRepo.commitCount, minCommits, maxCommits);
+    const starNormalised = normaliseLog(getKnownCommitCount(starRepo), minCommits, maxCommits);
     const starBody = {
       id: `${starRepo.id}-star`,
       kind: 'star',
@@ -129,7 +135,7 @@ export function createGalaxyLayout(repos) {
     };
 
     const planetBodies = planets.map((repo, index) => {
-      const normalised = normaliseLog(repo.commitCount, minCommits, maxCommits);
+      const normalised = normaliseLog(getKnownCommitCount(repo), minCommits, maxCommits);
       const orbitBand = index * 0.72;
       const orbitRadius = 4.6 + (1 - normalised) * 6.8 + orbitBand;
 

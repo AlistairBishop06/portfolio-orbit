@@ -88,7 +88,7 @@ async function mapWithConcurrency(items, limit, mapper) {
 }
 
 async function getCommitCount(repo) {
-  if (!repo.default_branch) return 0;
+  if (!repo.default_branch) return { count: 0, unavailable: false };
 
   try {
     const { data, headers } = await githubFetch(
@@ -98,11 +98,15 @@ async function getCommitCount(repo) {
     );
 
     const lastPage = parseLastPage(headers.get('Link'));
-    return lastPage ?? (Array.isArray(data) ? data.length : 0);
+    return {
+      count: lastPage ?? (Array.isArray(data) ? data.length : 0),
+      unavailable: false,
+    };
   } catch (error) {
-    if (error instanceof GitHubRateLimitError) throw error;
-
-    return 0;
+    return {
+      count: 0,
+      unavailable: error instanceof GitHubRateLimitError,
+    };
   }
 }
 
@@ -117,8 +121,16 @@ export async function fetchRepositoriesWithCommits(username = GITHUB_USER, onPro
   onProgress?.({ phase: 'repos', done: 0, total: repos.length });
 
   let completed = 0;
+  let commitRequestsRateLimited = false;
   const enriched = await mapWithConcurrency(repos, 4, async (repo) => {
-    const commitCount = await getCommitCount(repo);
+    const commitResult = commitRequestsRateLimited
+      ? { count: 0, unavailable: true }
+      : await getCommitCount(repo);
+
+    if (commitResult.unavailable) {
+      commitRequestsRateLimited = true;
+    }
+
     completed += 1;
     onProgress?.({ phase: 'commits', done: completed, total: repos.length });
 
@@ -127,7 +139,8 @@ export async function fetchRepositoriesWithCommits(username = GITHUB_USER, onPro
       name: repo.name,
       description: repo.description,
       primaryLanguage: repo.language || 'Unknown',
-      commitCount,
+      commitCount: commitResult.count,
+      commitCountUnavailable: commitResult.unavailable,
       stars: repo.stargazers_count,
       forks: repo.forks_count,
       updatedAt: repo.updated_at,

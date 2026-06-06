@@ -1,6 +1,9 @@
-const API_ROOT = 'https://api.github.com';
-
-export const GITHUB_USER = 'AlistairBishop06';
+import {
+  API_ROOT,
+  LIVE_CACHE_KEY,
+  LIVE_CACHE_TTL_MS,
+  PARTIAL_CACHE_TTL_MS,
+} from './00-config.js';
 
 export class GitHubRateLimitError extends Error {
   constructor(message = 'GitHub API rate limit reached') {
@@ -110,10 +113,43 @@ async function getCommitCount(repo) {
   }
 }
 
-export async function fetchRepositoriesWithCommits(username = GITHUB_USER, onProgress) {
-  // GitHub fetching: repos come from the public REST users/repos endpoint, then
-  // each repository is enriched with a separate commits request because the
-  // repository list response does not include a total commit count.
+export function readCachedLiveRepos(maxAgeMs = LIVE_CACHE_TTL_MS) {
+  try {
+    const cached = JSON.parse(window.localStorage.getItem(LIVE_CACHE_KEY) || 'null');
+    if (!cached?.repos?.length || !cached.timestamp) return null;
+
+    if (maxAgeMs !== Infinity) {
+      const cacheTtl = cached.complete
+        ? maxAgeMs
+        : Math.min(maxAgeMs, PARTIAL_CACHE_TTL_MS);
+      if (Date.now() - cached.timestamp > cacheTtl) return null;
+    }
+
+    return cached.repos;
+  } catch {
+    return null;
+  }
+}
+
+export function writeCachedLiveRepos(repos) {
+  try {
+    window.localStorage.setItem(
+      LIVE_CACHE_KEY,
+      JSON.stringify({
+        timestamp: Date.now(),
+        complete: repos.every((repo) => !repo.commitCountUnavailable),
+        repos,
+      }),
+    );
+  } catch {
+    // Local storage is only a rate-limit guard; the static site still works without it.
+  }
+}
+
+export async function fetchRepositoriesWithCommits(username, onProgress) {
+  // GitHub fetching: public repositories come from the REST users/repos endpoint.
+  // GitHub does not include total commits in that response, so each repo is
+  // enriched with one commits request that reads the final pagination page.
   const repos = await getAllPages(
     `/users/${username}/repos?type=public&sort=updated&per_page=100`,
   );

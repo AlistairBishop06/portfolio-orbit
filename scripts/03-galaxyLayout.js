@@ -112,7 +112,8 @@ export function createGalaxyLayout(repos) {
     // into the neutral outer ring so they read as a separate fallback system.
     const clusterAngle = (clusterIndex / CLUSTER_ORDER.length) * TAU;
     const angle = clusterAngle + (localIndex - 0.5) * 0.42;
-    const distance = cluster === 'neutral' ? 34 + localIndex * 3 : 18 + clusterIndex * 1.7 + localIndex * 4.2;
+    const distance =
+      cluster === 'neutral' ? 34 + localIndex * 3 : 18 + clusterIndex * 1.7 + localIndex * 4.2;
     const position = [
       Number((Math.cos(angle) * distance).toFixed(3)),
       Number((((localIndex % 3) - 1) * 2.2).toFixed(3)),

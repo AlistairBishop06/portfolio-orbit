@@ -8,9 +8,108 @@
       content="Orbit visualises Alistair Bishop's public GitHub repositories as a navigable 3D portfolio galaxy."
     />
     <title>Orbit | GitHub Portfolio Galaxy</title>
+    <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <main class="app-shell">
+      <div id="scene-layer" class="scene-layer" aria-label="Interactive repository galaxy"></div>
+      <div id="repo-tooltip" class="repo-tooltip hidden"></div>
+
+      <header class="top-bar">
+        <a class="brand" href="https://github.com/AlistairBishop06" target="_blank" rel="noreferrer">
+          <span class="brand-mark">O</span>
+          <span>
+            Orbit
+            <small>GitHub portfolio galaxy</small>
+          </span>
+        </a>
+        <a class="header-link" href="https://github.com/AlistairBishop06" target="_blank" rel="noreferrer">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M6 3v12" />
+            <path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+            <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+            <path d="M15 6h-3a6 6 0 0 0-6 6" />
+          </svg>
+          AlistairBishop06
+        </a>
+      </header>
+
+      <section class="hero-copy" aria-label="Portfolio introduction">
+        <p class="eyebrow">Public repositories visualised in 3D</p>
+        <h1>Orbit</h1>
+        <p>
+          A cinematic portfolio map where each language forms a solar system and each repository
+          becomes a luminous body shaped by its commit history.
+        </p>
+        <div class="summary-strip">
+          <span>
+            <strong id="repo-count">0</strong>
+            repos
+          </span>
+          <span>
+            <strong id="system-count">0</strong>
+            systems
+          </span>
+          <span>
+            <strong id="commit-count">0</strong>
+            commits
+          </span>
+        </div>
+      </section>
+
+      <div id="data-notice" class="data-notice hidden" role="note"></div>
+      <div id="data-source" class="data-source hidden" role="note"></div>
+      <div id="language-legend" class="language-legend" aria-label="Repository languages"></div>
+
+      <aside id="info-panel" class="info-panel hidden" aria-label="Repository details">
+        <button id="panel-close" class="icon-button panel-close" type="button" aria-label="Close panel">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+        <p id="panel-kicker" class="panel-kicker">Repository</p>
+        <h2 id="panel-title"></h2>
+        <p id="panel-description" class="panel-description"></p>
+        <div id="panel-language" class="language-pill"></div>
+        <dl id="panel-stats" class="repo-stats"></dl>
+        <a id="panel-link" class="github-link" href="#" target="_blank" rel="noreferrer">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M6 3v12" />
+            <path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+            <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+            <path d="M15 6h-3a6 6 0 0 0-6 6" />
+          </svg>
+          Open on GitHub
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M7 17 17 7" />
+            <path d="M7 7h10v10" />
+          </svg>
+        </a>
+      </aside>
+
+      <div id="loading-overlay" class="loading-overlay" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <span>Fetching public GitHub repositories</span>
+        <strong id="loading-progress">Building constellation</strong>
+      </div>
+    </main>
+
+    <script>
+      window.__orbitErrors = [];
+      window.addEventListener('error', (event) => window.__orbitErrors.push(event.message));
+      window.addEventListener('unhandledrejection', (event) =>
+        window.__orbitErrors.push(String(event.reason)),
+      );
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.184.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="./main.js"></script>
   </body>
 </html>
